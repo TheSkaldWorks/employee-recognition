@@ -24,6 +24,16 @@ const defaultTheme = {
       pwa: { raw: "(display-mode: standalone)" },
     },
     colors: {
+      'brand-blue': 'var(--color-brand-blue)',
+      'ink': 'var(--color-ink)',
+      'night': 'var(--color-night)',
+      'mint': 'var(--color-mint)',
+      'mint-200': 'var(--color-mint-200)',
+      'peach': 'var(--color-peach)',
+      'coral': 'var(--color-coral)',
+      'sky-200': 'var(--color-sky-200)',
+      'paper': 'var(--color-paper)',
+      'cloud': 'var(--color-cloud)',
       neutral: {
         1: "var(--color-neutral-1)",
         2: "var(--color-neutral-2)",
@@ -99,6 +109,15 @@ const defaultTheme = {
       xl: "var(--radius-xl)",
       "2xl": "var(--radius-2xl)",
       full: "var(--radius-full)",
+    },
+    keyframes: {
+      float: {
+        '0%, 100%': { transform: 'translateY(0px)' },
+        '50%': { transform: 'translateY(-20px)' },
+      },
+    },
+    animation: {
+      float: 'float 4s ease-in-out infinite',
     },
   },
   spacing: {
