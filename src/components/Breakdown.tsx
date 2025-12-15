@@ -8,6 +8,7 @@ interface BreakdownProps {
   reductionPercent: number
   expectedTurnoverEmployees: number
   retainedEmployees: number
+  replacementCost: number
   annualSavings: number
 }
 
@@ -17,6 +18,7 @@ export function Breakdown({
   reductionPercent,
   expectedTurnoverEmployees,
   retainedEmployees,
+  replacementCost,
   annualSavings,
 }: BreakdownProps) {
   return (
@@ -44,7 +46,7 @@ export function Breakdown({
                 <div className="flex justify-between items-center py-3 border-b border-ink/10">
                   <span className="text-ink/70 text-sm md:text-base">Cost to replace*</span>
                   <span className="inline-flex items-center px-3 py-1 bg-coral/20 text-coral rounded-full text-sm font-semibold">
-                    $15,000 per employee
+                    {formatUsd(replacementCost)} per employee
                   </span>
                 </div>
                 

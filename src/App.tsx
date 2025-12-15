@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { CaretDown, Info } from '@phosphor-icons/react'
 import { Slider } from '@/components/ui/slider'
@@ -9,7 +9,8 @@ import { Card } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Breakdown } from '@/components/Breakdown'
-import { formatUsd } from '@/lib/utils'
+import { AwardcoLogo } from '@/components/AwardcoLogo'
+import { formatUsd, calcRoi } from '@/lib/utils'
 
 function App() {
   const [employeeCount, setEmployeeCount] = useState(250)
@@ -17,10 +18,16 @@ function App() {
   const [turnoverRate, setTurnoverRate] = useState(15)
   const [reductionPercent, setReductionPercent] = useState('5')
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false)
+  const [awardcoLogoUrl, setAwardcoLogoUrl] = useState<string>('')
 
-  const expectedTurnoverEmployees = Math.round(employeeCount * (turnoverRate / 100))
-  const retainedEmployees = Math.round(expectedTurnoverEmployees * (Number(reductionPercent) / 100))
-  const annualSavings = retainedEmployees * 15000
+  const roiResults = useMemo(() => {
+    return calcRoi({
+      employeeCount,
+      avgSalary: salary,
+      turnoverRatePct: turnoverRate,
+      reductionPct: Number(reductionPercent),
+    })
+  }, [employeeCount, salary, turnoverRate, reductionPercent])
 
   const handleEmployeeCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -45,6 +52,8 @@ function App() {
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <header className="mb-12 md:mb-16">
+          <AwardcoLogo url={awardcoLogoUrl} />
+          
           <div className="inline-flex items-center px-3 py-1.5 bg-mint-200 rounded-full mb-6">
             <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-ink">
               Employee Recognition Tool
@@ -165,7 +174,7 @@ function App() {
 
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <p className="text-sm text-ink/70">Replacement cost per employee</p>
+                      <p className="text-sm text-ink/70">Estimated replacement cost (conservative)</p>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -175,14 +184,14 @@ function App() {
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
                             <p className="text-sm">
-                              This is a conservative, round estimate commonly used in HR modeling based on recruitment, onboarding, training, and productivity loss costs.
+                              Calculated as 30% of average salary and capped between $8,000 and $35,000.
                             </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <div className="inline-flex items-center px-4 py-2 bg-ink/5 text-ink rounded-lg text-sm font-semibold border border-ink/10">
-                      $15,000 (fixed)
+                      {formatUsd(roiResults.replacementCost)}
                     </div>
                   </div>
                 </div>
@@ -197,14 +206,14 @@ function App() {
           <div className="space-y-6">
             <Card className="p-8 md:p-10 bg-brand-blue rounded-2xl shadow-xl border-0 text-white">
               <motion.div
-                key={annualSavings}
+                key={roiResults.totalAnnualSavings}
                 initial={{ scale: 1.05 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.2 }}
               >
                 <p className="text-sm uppercase tracking-wider opacity-90 mb-2">Annual Savings</p>
                 <p className="text-5xl md:text-6xl font-bold mb-1 leading-tight">
-                  {formatUsd(annualSavings)}
+                  {formatUsd(roiResults.totalAnnualSavings)}
                 </p>
                 <p className="text-sm opacity-80">annually</p>
               </motion.div>
@@ -244,9 +253,10 @@ function App() {
           employeeCount={employeeCount}
           turnoverRate={turnoverRate}
           reductionPercent={Number(reductionPercent)}
-          expectedTurnoverEmployees={expectedTurnoverEmployees}
-          retainedEmployees={retainedEmployees}
-          annualSavings={annualSavings}
+          expectedTurnoverEmployees={roiResults.expectedTurnover}
+          retainedEmployees={roiResults.employeesRetained}
+          replacementCost={roiResults.replacementCost}
+          annualSavings={roiResults.totalAnnualSavings}
         />
       </div>
 
